@@ -2,4 +2,9 @@
 *.o
 *.elf
 *.eep
-/build-*/**
+build-*/
+/__vm/
+.vs/
+Debug/
+*.sln
+*.vcxproj*

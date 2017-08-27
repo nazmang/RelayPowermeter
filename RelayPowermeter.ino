@@ -1,3 +1,6 @@
+// Node ID
+#define MY_NODE_ID 2
+
 // Enable debug prints to serial monitor
 #define MY_DEBUG 
 
@@ -14,26 +17,79 @@
 #include <TimeLib.h> 
 #include <DS3232RTC.h>
 #include <Wire.h>
-//#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal_I2C.h>
 
 #define RELAY_PIN  4  // Arduino Digital I/O pin number for relay 
 #define BUTTON_PIN  3  // Arduino Digital I/O pin number for button 
-#define CHILD_ID 1   // Id of the sensor child
+#define POWERMETER_PIN A2
+#define CHILD_ID_RELAY 1   // Id of the sensor child
+#define CHILD_ID_POWER 2
 #define RELAY_ON 1
 #define RELAY_OFF 0
+
+
+#define ACS712_05B 0.0264
+#define ACS712_20B 0.0490
+#define ACS712_30A 0.0742
+
+class GenericHallEffectSensor
+{
+public:
+	GenericHallEffectSensor() {};
+	GenericHallEffectSensor(uint8_t id, float fact) { pin = id; factor = fact; }
+	bool operator()(float trigger) { return readAcCurrent(100) >= trigger; }
+
+	float readAcCurrent(uint16_t navg)
+	{
+		acc = 0;
+		for (i = 0; i<navg; i++)
+		{
+			adc = analogRead(pin) - 512;
+			acc += (adc*adc);
+			delay(1);
+		}
+		return sqrt(acc / navg)*factor;
+	}
+
+	float readDcCurrent(uint16_t navg)
+	{
+		average = 0;
+		for (i = 0; i<navg; i++)
+		{
+			average = average + (factor * analogRead(pin) - 13.513) / navg;
+			delay(1);
+		}
+		return average;
+	}
+
+private:
+	uint8_t pin;
+	long acc, adc;
+	float average;
+	uint16_t i;
+	/* Factor for:
+	+-5 À (ACS712-05B) = 0.0264
+	+-20 À (ACS712-20B) = 0.0490
+	+-30 À (ACS712-30A) = 0.0742   */
+	float factor;
+};
+
+GenericHallEffectSensor io_ACS1 = GenericHallEffectSensor(POWERMETER_PIN, ACS712_20B);
 
 Bounce debouncer = Bounce(); 
 int oldValue=0;
 bool state;
-
+float measure;
+float threshold;
 bool timeReceived = false;
 unsigned long lastUpdate=0, lastRequest=0;
 
-MyMessage msg(CHILD_ID,V_LIGHT);
+MyMessage msg(CHILD_ID_RELAY,V_LIGHT);
+MyMessage msg2(CHILD_ID_POWER, V_WATT);
 
 // Initialize display. Google the correct settings for your display. 
 // The follwoing setting should work for the recommended display in the MySensors "shop".
-//LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 void setup()  
 {  
@@ -48,6 +104,8 @@ void setup()
   // Request latest time from controller at startup
   requestTime();  
 
+  threshold = 30.0;
+
   // After setting up the button, setup debouncer
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(5);
@@ -58,11 +116,12 @@ void setup()
   pinMode(RELAY_PIN, OUTPUT);   
 
   // Set relay to last known state (using eeprom storage) 
-  state = loadState(CHILD_ID);
+  state = loadState(CHILD_ID_RELAY);
   digitalWrite(RELAY_PIN, state?RELAY_ON:RELAY_OFF);
 
   // initialize the lcd for 16 chars 2 lines and turn on backlight
-  //lcd.begin(16,2); 
+  lcd.begin(16,2); 
+  lcd.clear();
 }
 
 void presentation()  {
@@ -70,17 +129,20 @@ void presentation()  {
   sendSketchInfo("Relay & Powermeter", "1.0");
 
   // Register all sensors to gw (they will be created as child devices)
-  present(CHILD_ID, S_LIGHT);
+  present(CHILD_ID_RELAY, S_LIGHT);
+  present(CHILD_ID_POWER, S_POWER);
+  
 }
 
 // This is called when a new time value was received
 void receiveTime(unsigned long controllerTime) {
-  // Ok, set incoming time 
-  Serial.print("Time value received: ");
-  Serial.println(controllerTime);
-  RTC.set(controllerTime); // this sets the RTC to the time from controller - which we do want periodically
-  timeReceived = true;
+	// Ok, set incoming time 
+	Serial.print("Time value received: ");
+	Serial.println(controllerTime);
+	RTC.set(controllerTime); // this sets the RTC to the time from controller - which we do want periodically
+	timeReceived = true;
 }
+
 /*
 *  Example on how to asynchronously check for new messages from gw
 */
@@ -94,6 +156,9 @@ void loop()
   }
   oldValue = value;
 
+  measure = io_ACS1.readAcCurrent(1000);
+  send(msg2.set(measure,2), true);
+
   unsigned long now = millis();
   // If no time has been received yet, request it every 10 second from controller
   // When time has been received, request update every hour
@@ -106,17 +171,17 @@ void loop()
   }
 
   // Update display every second
-  /*if (now-lastUpdate > 1000) {
+  if (now-lastUpdate > 1000) {
     updateDisplay();  
     lastUpdate = now;
-  }*/
+  }
     
 } 
 
 void receive(const MyMessage &message) {
   // We only expect one type of message from controller. But we better check anyway.
   if (message.isAck()) {
-     Serial.println("This is an ack from gateway");
+     Serial.println(F("This is an ack from gateway"));
   }
 
   if (message.type == V_LIGHT) {
@@ -124,47 +189,65 @@ void receive(const MyMessage &message) {
      state = message.getBool();
      digitalWrite(RELAY_PIN, state?RELAY_ON:RELAY_OFF);
      // Store state in eeprom
-     saveState(CHILD_ID, state);
+     saveState(CHILD_ID_RELAY, state);
 
      // Write some debug info
-     Serial.print("Incoming change for sensor:");
+     Serial.print(F("Incoming change for sensor:"));
      Serial.print(message.sensor);
      Serial.print(", New status: ");
      Serial.println(message.getBool());
    } 
 }
 
-/*
+void printDigits(int digits) {
+	if (digits < 10)
+		lcd.print('0');
+	lcd.print(digits);
+}
+
 void updateDisplay(){
   tmElements_t tm;
   RTC.read(tm);
-
+  Serial.println("updating display");
   // Print date and time 
   lcd.home();
-  lcd.print(tm.Day);
+  /*lcd.print(tm.Day);
   lcd.print("/");
-  lcd.print(tm.Month);
+  lcd.print(tm.Month);*/
 //  lcd.print(" ");
 //  lcd.print(tmYearToCalendar(tm.Year)-2000);
 
-  lcd.print(" ");
+  //lcd.print(" ");
   printDigits(tm.Hour);
   lcd.print(":");
   printDigits(tm.Minute);
-  lcd.print(":");
-  printDigits(tm.Second);
+  /*lcd.print(":");
+  printDigits(tm.Second);*/
+
+  state?lcd.print(" Relay ON"): lcd.print(" Relay OFF");
 
   // Go to next line and print temperature
   lcd.setCursor ( 0, 1 );  
-  lcd.print("Temp: ");
+  lcd.print("t=");
   lcd.print(RTC.temperature()/4);
   lcd.write(223); // Degree-sign
   lcd.print("C");
+
+  // Print current
+  if (io_ACS1(threshold)) {
+	 /* lcd.clear();
+	  lcd.home();
+	  lcd.println(F("ALARM!          "));
+	  lcd.setCursor(0, 1);
+	  lcd.println(F("Current too high"));*/
+  }
+  else {
+	  measure = io_ACS1.readAcCurrent(1000);
+	  //lcd.setCursor(1, 0);
+	  //lcd.println("AC Current:");
+	  lcd.print("I=");
+	  lcd.print(measure);
+	  lcd.print("A");
+  }
+
 }
-
-
-void printDigits(int digits){
-  if(digits < 10)
-    lcd.print('0');
-  lcd.print(digits);
-}*/
