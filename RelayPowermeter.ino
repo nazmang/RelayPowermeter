@@ -235,11 +235,11 @@ void updateDisplay(){
 
   // Print current
   if (io_ACS1(threshold)) {
-	 /* lcd.clear();
+	  lcd.clear();
 	  lcd.home();
 	  lcd.println(F("ALARM!          "));
 	  lcd.setCursor(0, 1);
-	  lcd.println(F("Current too high"));*/
+	  lcd.println(F("Current too high"));
   }
   else {
 	  measure = io_ACS1.readAcCurrent(1000);

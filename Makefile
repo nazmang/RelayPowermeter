@@ -4,5 +4,5 @@ BOARD_TAG    = uno
 ISP_PROG     = usbasp
 AVRDUDE_OPTS = -v
 ARDUINO_SKETCHBOOK = ../../Arduino
-ARDUINO_LIBS = Time SPI DS3232RTC MySensors Bounce2 Wire
+ARDUINO_LIBS = Time SPI DS3232RTC MySensors Bounce2 Wire LiquidCrystal_I2C
 include ../Arduino-Makefile/Arduino.mk
