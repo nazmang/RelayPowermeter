@@ -23,7 +23,8 @@
 #define BUTTON_PIN  3  // Arduino Digital I/O pin number for button 
 #define POWERMETER_PIN A2
 #define CHILD_ID_RELAY 1   // Id of the sensor child
-#define CHILD_ID_POWER 2
+#define CHILD_ID_POWER 2   // Id of powermeter
+#define CHILD_ID_TEMP 3	   // Id of internal DS3231 temperature sensor	
 #define RELAY_ON 1
 #define RELAY_OFF 0
 
@@ -86,6 +87,7 @@ unsigned long lastUpdate=0, lastRequest=0;
 
 MyMessage msg(CHILD_ID_RELAY,V_LIGHT);
 MyMessage msg2(CHILD_ID_POWER, V_WATT);
+MyMessage msg3(CHILD_ID_TEMP, V_TEMP);
 
 // Initialize display. Google the correct settings for your display. 
 // The follwoing setting should work for the recommended display in the MySensors "shop".
@@ -131,6 +133,7 @@ void presentation()  {
   // Register all sensors to gw (they will be created as child devices)
   present(CHILD_ID_RELAY, S_LIGHT);
   present(CHILD_ID_POWER, S_POWER);
+  present(CHILD_ID_TEMP, S_TEMP);
   
 }
 
@@ -157,7 +160,8 @@ void loop()
   oldValue = value;
 
   measure = io_ACS1.readAcCurrent(1000);
-  send(msg2.set(measure,2), true);
+  send(msg2.set(measure,2), false);
+  send(msg3.set(RTC.temperature() / 4), false);
 
   unsigned long now = millis();
   // If no time has been received yet, request it every 10 second from controller
@@ -175,7 +179,9 @@ void loop()
     updateDisplay();  
     lastUpdate = now;
   }
-    
+
+  smartSleep(5000);
+
 } 
 
 void receive(const MyMessage &message) {
@@ -208,7 +214,7 @@ void printDigits(int digits) {
 void updateDisplay(){
   tmElements_t tm;
   RTC.read(tm);
-  Serial.println("updating display");
+  //Serial.println("updating display");
   // Print date and time 
   lcd.home();
   /*lcd.print(tm.Day);
@@ -244,8 +250,7 @@ void updateDisplay(){
   else {
 	  measure = io_ACS1.readAcCurrent(1000);
 	  //lcd.setCursor(1, 0);
-	  //lcd.println("AC Current:");
-	  lcd.print("I=");
+	  lcd.print(" I=");
 	  lcd.print(measure);
 	  lcd.print("A");
   }
