@@ -85,7 +85,7 @@ float threshold;
 bool timeReceived = false;
 unsigned long lastUpdate=0, lastRequest=0;
 
-MyMessage msg(CHILD_ID_RELAY,V_LIGHT);
+MyMessage msg(CHILD_ID_RELAY, V_STATUS);
 MyMessage msg2(CHILD_ID_POWER, V_WATT);
 MyMessage msg3(CHILD_ID_TEMP, V_TEMP);
 
@@ -112,14 +112,16 @@ void setup()
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(5);
 
+  // Then set relay pins in output mode
+  pinMode(RELAY_PIN, OUTPUT);
   // Make sure relays are off when starting up
   digitalWrite(RELAY_PIN, RELAY_OFF);
-  // Then set relay pins in output mode
-  pinMode(RELAY_PIN, OUTPUT);   
+  
 
   // Set relay to last known state (using eeprom storage) 
   state = loadState(CHILD_ID_RELAY);
   digitalWrite(RELAY_PIN, state?RELAY_ON:RELAY_OFF);
+  //send(msg.set(state ? false : true), true);
 
   // initialize the lcd for 16 chars 2 lines and turn on backlight
   lcd.begin(16,2); 
@@ -131,7 +133,7 @@ void presentation()  {
   sendSketchInfo("Relay & Powermeter", "1.0");
 
   // Register all sensors to gw (they will be created as child devices)
-  present(CHILD_ID_RELAY, S_LIGHT);
+  present(CHILD_ID_RELAY, S_BINARY);
   present(CHILD_ID_POWER, S_POWER);
   present(CHILD_ID_TEMP, S_TEMP);
   
@@ -189,8 +191,8 @@ void receive(const MyMessage &message) {
   if (message.isAck()) {
      Serial.println(F("This is an ack from gateway"));
   }
-
-  if (message.type == V_LIGHT) {
+ 
+  if (message.type == V_STATUS) {
      // Change relay state
      state = message.getBool();
      digitalWrite(RELAY_PIN, state?RELAY_ON:RELAY_OFF);
@@ -214,23 +216,12 @@ void printDigits(int digits) {
 void updateDisplay(){
   tmElements_t tm;
   RTC.read(tm);
-  //Serial.println("updating display");
-  // Print date and time 
   lcd.home();
-  /*lcd.print(tm.Day);
-  lcd.print("/");
-  lcd.print(tm.Month);*/
-//  lcd.print(" ");
-//  lcd.print(tmYearToCalendar(tm.Year)-2000);
-
-  //lcd.print(" ");
   printDigits(tm.Hour);
   lcd.print(":");
   printDigits(tm.Minute);
-  /*lcd.print(":");
-  printDigits(tm.Second);*/
-
-  state?lcd.print(" Relay ON"): lcd.print(" Relay OFF");
+  
+  state?lcd.print(" Relay ON "): lcd.print(" Relay OFF");
 
   // Go to next line and print temperature
   lcd.setCursor ( 0, 1 );  
