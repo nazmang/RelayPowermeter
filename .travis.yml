@@ -3,7 +3,7 @@ sudo: false
 before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
-  - arduino --install-library "Time,SPI,DS3232RTC,MySensors,Bounce2,Wire LiquidCrystal_I2C"
+  - arduino --install-library "DS3232RTC,MySensors,Bounce2,LiquidCrystal_I2C,Time"
 script:
   - build_main_platforms
 notifications:
