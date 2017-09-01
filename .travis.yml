@@ -2,10 +2,14 @@ language: c
 sudo: false
 before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq git
 install:
-  - arduino --install-library "DS3232RTC,MySensors,Bounce2,LiquidCrystal_I2C,Time"
+  - arduino --install-library "MySensors,Bounce2,Time"
+  - git clone https://github.com/JChristensen/DS3232RTC.git
+  - git clone https://github.com/marcmerlin/NewLiquidCrystal.git
 script:
-  - build_main_platforms
+  - build_main_platforms uno
 notifications:
   email:
     on_success: change
