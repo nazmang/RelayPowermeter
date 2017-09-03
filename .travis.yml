@@ -1,10 +1,11 @@
 language: c
 sudo: false
 before_install:
-  - mkdir -p ~/Arduino/libraries/
-  - cd ~/Arduino/libraries/
+  - mkdir -p $HOME/Arduino/libraries/
   - git clone https://github.com/JChristensen/DS3232RTC.git 
+  - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/marcmerlin/NewLiquidCrystal.git
+  - ln -s $PWD/NewLiquidCrystal $HOME/Arduino/libraries/NewLiquidCrystal
 #  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
   - arduino --install-library "MySensors,Bounce2,Time"  
