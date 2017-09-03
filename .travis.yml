@@ -7,6 +7,8 @@ before_install:
   - git clone https://github.com/marcmerlin/NewLiquidCrystal.git
   - ln -s $PWD/NewLiquidCrystal $HOME/Arduino/libraries/NewLiquidCrystal
   - ls -al $HOME/Arduino/libraries/
+  - rm -rf $HOME/Arduino/libraries/*.pde
+  - rm -rf $HOME/Arduino/libraries/*.ino
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
   - arduino --install-library "MySensors,Bounce2,Time"  
