@@ -2,14 +2,14 @@
 #define MY_NODE_ID 2
 
 // Enable debug prints to serial monitor
-#define MY_DEBUG 
+//#define MY_DEBUG 
 
 // Enable and select radio type attached
 #define MY_RADIO_NRF24
 //#define MY_RADIO_RFM69
 
 // Enabled repeater feature for this node
-#define MY_REPEATER_FEATURE
+//#define MY_REPEATER_FEATURE
 
 #include <SPI.h>
 #include <MySensors.h>
@@ -86,7 +86,7 @@ bool timeReceived = false;
 unsigned long lastUpdate=0, lastRequest=0;
 
 MyMessage msg(CHILD_ID_RELAY, V_STATUS);
-MyMessage msg2(CHILD_ID_POWER, V_WATT);
+MyMessage msg2(CHILD_ID_POWER, V_VAR);
 MyMessage msg3(CHILD_ID_TEMP, V_TEMP);
 
 // Initialize display. Google the correct settings for your display. 
@@ -120,8 +120,9 @@ void setup()
 
   // Set relay to last known state (using eeprom storage) 
   state = loadState(CHILD_ID_RELAY);
+  
   digitalWrite(RELAY_PIN, state?RELAY_ON:RELAY_OFF);
-  //send(msg.set(state ? false : true), true);
+  //send(msg.set(state ? true : false), true);
 
   // initialize the lcd for 16 chars 2 lines and turn on backlight
   lcd.begin(16,2); 
@@ -155,13 +156,16 @@ void loop()
 {
   debouncer.update();
   // Get the update value
+  
   int value = debouncer.read();
   if (value != oldValue && value==0) {
-      send(msg.set(state?false:true), true); // Send new state and request ack back
+      send(msg.set(state ? true : false), true); // Send new state and request ack back
   }
   oldValue = value;
 
-  measure = io_ACS1.readAcCurrent(1000);
+  measure = io_ACS1.readAcCurrent(100);
+
+  send(msg.set(state ? true : false), true);
   send(msg2.set(measure,2), false);
   send(msg3.set(RTC.temperature() / 4), false);
 
@@ -182,28 +186,34 @@ void loop()
     lastUpdate = now;
   }
 
-  smartSleep(5000);
+  smartSleep(1000);
 
 } 
 
 void receive(const MyMessage &message) {
   // We only expect one type of message from controller. But we better check anyway.
-  if (message.isAck()) {
-     Serial.println(F("This is an ack from gateway"));
-  }
+  /*if (message.isAck()) {
+     Serial.println("This is an ack from gateway");
+	
+  }*/
  
   if (message.type == V_STATUS) {
+	 bool prevState = state;
      // Change relay state
-     state = message.getBool();
-     digitalWrite(RELAY_PIN, state?RELAY_ON:RELAY_OFF);
-     // Store state in eeprom
-     saveState(CHILD_ID_RELAY, state);
+	 Serial.print("\nCurrent state: ");
+	 Serial.println(state);
+	 state = message.getBool();
+	 if (state != prevState) {
+		 digitalWrite(RELAY_PIN, state ? RELAY_ON : RELAY_OFF);
+		 // Store state in eeprom
+		 saveState(CHILD_ID_RELAY, state);
 
-     // Write some debug info
-     Serial.print(F("Incoming change for sensor:"));
-     Serial.print(message.sensor);
-     Serial.print(", New status: ");
-     Serial.println(message.getBool());
+		 // Write some debug info
+		 Serial.print("\nIncoming change for sensor: ");
+		 Serial.print(message.sensor);
+		 Serial.print(", New status: ");
+		 Serial.println(message.getBool());
+	 }
    } 
 }
 
@@ -234,9 +244,9 @@ void updateDisplay(){
   if (io_ACS1(threshold)) {
 	  lcd.clear();
 	  lcd.home();
-	  lcd.println(F("ALARM!          "));
+	  lcd.println("ALARM!          ");
 	  lcd.setCursor(0, 1);
-	  lcd.println(F("Current too high"));
+	  lcd.println("Current too high");
   }
   else {
 	  measure = io_ACS1.readAcCurrent(1000);

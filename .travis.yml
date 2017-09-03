@@ -6,7 +6,8 @@ before_install:
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/marcmerlin/NewLiquidCrystal.git
   - ln -s $PWD/NewLiquidCrystal $HOME/Arduino/libraries/NewLiquidCrystal
-#  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+  - ls -al $HOME/Arduino/libraries/
+  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
   - arduino --install-library "MySensors,Bounce2,Time"  
 script:
