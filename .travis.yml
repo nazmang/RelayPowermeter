@@ -1,11 +1,11 @@
 language: c
 sudo: false
 before_install:
-  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
-install:
-  - arduino --install-library "MySensors,Bounce2,Time"
   - git clone https://github.com/JChristensen/DS3232RTC.git ~/Arduino/libraries/
   - git clone https://github.com/marcmerlin/NewLiquidCrystal.git ~/Arduino/libraries/
+#  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
+install:
+  - arduino --install-library "MySensors,Bounce2,Time"  
 script:
   - build_main_platforms uno
 notifications:
