@@ -1,4 +1,4 @@
-language: c
+language: c++
 sudo: false
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
@@ -11,23 +11,16 @@ before_install:
  # - mv arduino-1.6.5 $HOME/arduino_ide
   - mv arduino-1.8.4 $HOME/arduino_ide
   - export PATH="$HOME/arduino_ide:$PATH"
- # - rm -rf $HOME/Arduino/libraries/*.pde
- # - rm -rf $HOME/Arduino/libraries/*.ino
- #- source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
-install:
+ install:
   - mkdir -p $HOME/Arduino/libraries
   - git clone https://github.com/JChristensen/DS3232RTC.git 
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
-  - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/Arduino/libraries/LiquidCrystal
-  - arduino --install-library USBHost > /dev/null 2>&1
+  - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/arduino_ide/LiquidCrystal
   - arduino --install-library "MySensors,Bounce2,Time"
-  - arduino --install-boards "arduino:avr"
-  - arduino --pref "compiler.warning_level=all" --save-prefs
-  - ls -alL $HOME/Arduino/libraries/
-  - ls -alL $HOME/Arduino/libraries/LiquidCrystal 
+  - arduino --install-boards "arduino:avr"  
 script:
-  - arduino --verbose-build --verify --board arduino:avr:uno $PWD/nazmang/RelayPowermeter/RelayPowermeter.ino
+  - arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/arduino_ide $PWD/*.ino
 notifications:
   email:
     on_success: change
