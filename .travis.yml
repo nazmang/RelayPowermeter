@@ -15,13 +15,13 @@ before_install:
  # - rm -rf $HOME/Arduino/libraries/*.ino
  #- source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
-  - arduino --install-library "MySensors,Bounce2"
+  - arduino --install-library "MySensors,Bounce2,Time"
   - git clone https://github.com/JChristensen/DS3232RTC.git 
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
   - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/Arduino/libraries/LiquidCrystal
-  - ls -al $HOME/Arduino/libraries/
-  - ls -al $HOME/Arduino/libraries/LiquidCrystal 
+  - ls -alL $HOME/Arduino/libraries/
+  - ls -alL $HOME/Arduino/libraries/LiquidCrystal 
 script:
   - arduino --verify --board arduino:avr:uno $PWD/nazmang/RelayPowermeter/RelayPowermeter.ino
 notifications:
