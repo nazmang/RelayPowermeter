@@ -18,9 +18,10 @@ install:
   - arduino --install-library "MySensors,Bounce2"
   - git clone https://github.com/JChristensen/DS3232RTC.git 
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
-  - git clone --depth=3 https://github.com/mysensors/MySensorsArduinoExamples.git
+  - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
   - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/Arduino/libraries/LiquidCrystal
-  - ls -al $HOME/Arduino/libraries/  
+  - ls -al $HOME/Arduino/libraries/
+  - ls -al $HOME/Arduino/libraries/LiquidCrystal 
 script:
   - arduino --verify --board arduino:avr:uno $PWD/nazmang/RelayPowermeter/RelayPowermeter.ino
 notifications:
