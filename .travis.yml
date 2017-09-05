@@ -21,10 +21,11 @@ install:
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
   - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/Arduino/libraries/LiquidCrystal
   - arduino --install-library "MySensors,Bounce2,Time"
+  - arduino --install-boards "arduino:avr"
   - ls -alL $HOME/Arduino/libraries/
   - ls -alL $HOME/Arduino/libraries/LiquidCrystal 
 script:
-  - arduino --verify --board arduino:avr:uno $PWD/nazmang/RelayPowermeter/RelayPowermeter.ino
+  - arduino --verbose-build --verify --board arduino:avr:uno $PWD/nazmang/RelayPowermeter/RelayPowermeter.ino
 notifications:
   email:
     on_success: change
