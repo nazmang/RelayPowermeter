@@ -8,7 +8,7 @@ before_install:
   - wget http://downloads.arduino.cc/arduino-1.8.4-linux64.tar.xz
  # - tar xf arduino-1.6.5-linux64.tar.xz
   - tar xf arduino-1.8.4-linux64.tar.xz 
-  - mv arduino-1.8.4-linux64.tar.xz $HOME/arduino_ide
+  - mv arduino-1.8.4-linux64 $HOME/arduino_ide
   - export PATH="$HOME/arduino_ide:$PATH"
  # - rm -rf $HOME/Arduino/libraries/*.pde
  # - rm -rf $HOME/Arduino/libraries/*.ino
