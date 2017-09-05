@@ -15,6 +15,7 @@ before_install:
  # - rm -rf $HOME/Arduino/libraries/*.ino
  #- source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
+  - mkdir -p $HOME/Arduino/libraries
   - git clone https://github.com/JChristensen/DS3232RTC.git 
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
