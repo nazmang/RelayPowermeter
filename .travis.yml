@@ -28,6 +28,8 @@ notifications:
   email:
     on_success: change
     on_failure: change
+before_deploy:
+  - ls -lLa $PWD/build
 deploy:
   provider: releases
   api_key:
