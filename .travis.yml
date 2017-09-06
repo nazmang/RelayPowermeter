@@ -3,24 +3,27 @@ language: cpp
 #  directories:
 #    - $HOME/arduino_ide/arduino-1.8.4
 sudo: false
+env:
+  - ARDUINO_VERSION=1.8.4 ARDUINO_PATH=$HOME/arduino_ide
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
   - sleep 3
   - export DISPLAY=:1.0
-  - if ! [ -d $HOME/arduino_ide/arduino-1.8.4 ]; then wget http://downloads.arduino.cc/arduino-1.8.4-linux64.tar.xz && tar xf arduino-1.8.4-linux64.tar.xz && cp -av  arduino-1.8.4 $HOME/arduino_ide; fi
-  - export PATH="$HOME/arduino_ide/arduino-1.8.4:$PATH"
+  - if ! [ -d $ARDUINO_PATH ]; then wget http://downloads.arduino.cc/arduino-1.8.4-linux64.tar.xz && tar xf arduino-1.8.4-linux64.tar.xz && cp -a  arduino-1.8.4 $ARDUINO_PATH; fi
+  - export PATH="$HOME/arduino_ide:$PATH"
 install:
   - mkdir -p $HOME/Arduino/libraries
   - git clone https://github.com/JChristensen/DS3232RTC.git 
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
   - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/arduino_ide/LiquidCrystal
+  - ls -al $HOME
   - ls -alL $HOME/arduino_ide
   - ls -alL $HOME/Arduino/libraries
-  - $HOME/arduino_ide/arduino-1.8.4/arduino --install-library "MySensors,Bounce2,Time"
-  - $HOME/arduino_ide/arduino-1.8.4/arduino --install-boards "arduino:avr"
+  - arduino --install-library "MySensors,Bounce2,Time"
+  - arduino --install-boards "arduino:avr"
 script:
-  - $HOME/arduino_ide/arduino-1.8.4/arduino-builder -verbose  -hardware $HOME/arduino_ide/arduino-1.8.4/hardware -tools $HOME/arduino_ide/arduino-1.8.4/hardware/tools -tools $HOME/arduino_ide/arduino-1.8.4/tools-builder -fqbn arduino:avr:uno -libraries $HOME/Arduino/libraries $PWD/*.ino
+  - arduino-builder -verbose  -hardware $ARDUINO_PATH/hardware -tools $ARDUINO_PATH/hardware/tools -tools $ARDUINO_PATH/tools-builder -fqbn arduino:avr:uno -libraries $HOME/Arduino/libraries $PWD/*.ino
 notifications:
   email:
     on_success: change
