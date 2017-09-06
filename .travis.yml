@@ -4,7 +4,7 @@ language: cpp
 #    - $HOME/arduino_ide/arduino-1.8.4
 sudo: false
 env:
-  - ARDUINO_VERSION=1.8.4 ARDUINO_PATH=$HOME/arduino_ide
+  - ARDUINO_VERSION=1.8.4 ARDUINO_PATH=$HOME/arduino_ide ARDUINO_LIBS_PATH=$HOME/Arduino/libraries
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
   - sleep 3
@@ -12,18 +12,18 @@ before_install:
   - if ! [ -d $ARDUINO_PATH ]; then wget http://downloads.arduino.cc/arduino-1.8.4-linux64.tar.xz && tar xf arduino-1.8.4-linux64.tar.xz && cp -a  arduino-1.8.4 $ARDUINO_PATH; fi
   - export PATH="$HOME/arduino_ide:$PATH"
 install:
-  - mkdir -p $HOME/Arduino/libraries
+  - mkdir -p $ARDUINO_LIBS_PATH
   - git clone https://github.com/JChristensen/DS3232RTC.git 
-  - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
+  - ln -s $PWD/DS3232RTC $ARDUINO_LIBS_PATH/DS3232RTC
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
-  - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/arduino_ide/LiquidCrystal
-  - ls -al $HOME
-  - ls -alL $HOME/arduino_ide
-  - ls -alL $HOME/Arduino/libraries
+  - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $ARDUINO_LIBS_PATH/LiquidCrystal
+#  - ls -al $HOME
+#  - ls -alL $HOME/arduino_ide
+#  - ls -alL $HOME/Arduino/libraries
   - arduino --install-library "MySensors,Bounce2,Time"
   - arduino --install-boards "arduino:avr"
 script:
-  - arduino-builder -verbose  -hardware $ARDUINO_PATH/hardware -tools $ARDUINO_PATH/hardware/tools -tools $ARDUINO_PATH/tools-builder -fqbn arduino:avr:uno -libraries $HOME/Arduino/libraries $PWD/*.ino
+  - arduino-builder -verbose  -hardware $ARDUINO_PATH/hardware -tools $ARDUINO_PATH/hardware/tools -tools $ARDUINO_PATH/tools-builder -fqbn arduino:avr:uno -libraries $ARDUINO_LIBS_PATH $PWD/*.ino
 notifications:
   email:
     on_success: change
