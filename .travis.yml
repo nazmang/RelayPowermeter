@@ -17,11 +17,12 @@ install:
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
   - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/arduino_ide/LiquidCrystal
-  - ls -alL $HOME/arduino_ide
-  - $HOME/arduino_ide/arduino --install-library "MySensors,Bounce2,Time"
-  - $HOME/arduino_ide/arduino --install-boards "arduino:avr"
+  - ls -alL $HOME/arduino_ide/arduino-1.8.4
+  - ls -alL $HOME/Arduino/libraries
+  - $HOME/arduino_ide/arduino-1.8.4/arduino/ --install-library "MySensors,Bounce2,Time"
+  - $HOME/arduino_ide/arduino-1.8.4/arduino --install-boards "arduino:avr"
 script:
-  - $HOME/arduino_ide/arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/arduino_ide $PWD/*.ino
+  - $HOME/arduino_ide/arduino-1.8.4/arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/arduino_ide $PWD/*.ino
 notifications:
   email:
     on_success: change
