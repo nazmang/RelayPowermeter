@@ -1,5 +1,7 @@
 language: cpp
-cache: ccache
+cache: 
+  directories:
+    - $HOME/arduino_ide
 sudo: false
 addons:
   apt:
