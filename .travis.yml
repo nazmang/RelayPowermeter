@@ -2,14 +2,14 @@ language: cpp
 sudo: false
 cache:
   directories:
-    - $ARDUINO_PATH
+    - $HOME/arduino_ide
 env:
   - ARDUINO_VERSION=1.8.4 ARDUINO_PATH=$HOME/arduino_ide ARDUINO_LIBS_PATH=$HOME/Arduino/libraries
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
   - sleep 3
   - export DISPLAY=:1.0
-  - if ! [ -d $ARDUINO_PATH ]; then wget http://downloads.arduino.cc/arduino-1.8.4-linux64.tar.xz && tar xf arduino-1.8.4-linux64.tar.xz && cp -a  arduino-1.8.4 $ARDUINO_PATH; fi
+  - if ! [ -f $ARDUINO_PATH/arduino ]; then wget http://downloads.arduino.cc/arduino-1.8.4-linux64.tar.xz && tar xf arduino-1.8.4-linux64.tar.xz && cp -a  arduino-1.8.4 $ARDUINO_PATH; fi
   - export PATH="$HOME/arduino_ide:$PATH"
 install:
   - mkdir -p $ARDUINO_LIBS_PATH
