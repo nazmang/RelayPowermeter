@@ -23,7 +23,7 @@ install:
   - arduino --install-library "MySensors,Bounce2,Time"
   - arduino --install-boards "arduino:avr"
 script:
-  - arduino-builder -verbose  -hardware $ARDUINO_PATH/hardware -tools $ARDUINO_PATH/hardware/tools -tools $ARDUINO_PATH/tools-builder -fqbn arduino:avr:uno -libraries $ARDUINO_LIBS_PATH $PWD/*.ino
+  - arduino-builder -verbose  -hardware $ARDUINO_PATH/hardware -tools $ARDUINO_PATH/hardware/tools -tools $ARDUINO_PATH/tools-builder -fqbn arduino:avr:uno -libraries $ARDUINO_LIBS_PATH -build-path $PWD $PWD/*.ino
 notifications:
   email:
     on_success: change
