@@ -19,6 +19,7 @@ install:
   - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/arduino_ide/LiquidCrystal
   - $HOME/arduino_ide/arduino --install-library "MySensors,Bounce2,Time"
   - $HOME/arduino_ide/arduino --install-boards "arduino:avr"
+  - ls -alL $HOME
 script:
   - $HOME/arduino_ide/arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/arduino_ide $PWD/*.ino
 notifications:
