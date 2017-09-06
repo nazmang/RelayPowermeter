@@ -1,4 +1,7 @@
-language: c
+language: cpp
+cache:
+  directories:
+    - $HOME/arduino_ide
 sudo: false
 before_install:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
@@ -17,7 +20,7 @@ install:
   - arduino --install-library "MySensors,Bounce2,Time"
   - arduino --install-boards "arduino:avr"
 script:
-  - arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/arduino_ide $PWD/*.ino
+  - arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/Arduino/libraries $PWD/*.ino
 notifications:
   email:
     on_success: change
