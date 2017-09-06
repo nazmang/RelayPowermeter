@@ -30,4 +30,11 @@ script:
 notifications:
   email:
     on_success: change
-    on_failure: change  
+    on_failure: change
+deploy:
+  provider: releases
+  api_key:
+    secure: JpHfz0ZCoLemvl9P9uJzk3Lx4YRAGiU5pW/LthdtbvOnlV4c8+UkNIF7cjGDHqxCTtsN9cujwFZVmejZyVCMvzm6hEN/0o9XDk4KsNzQaXOk/qElU2oCqbFFQCRIJ7B4OwKwsgRlJGZyv7msAzVco6jjokUPvy76uuYm+zb5q3BvP3I2mXkQKXWsee/hYt2Pxwyu8rGIvV2iskYjn080Jm+jGFour6rErf5I9WmY/8setUz0g4RuvSCqWDvx/8Sp6bo1jECPu7KrzsN7PVbFpJjzeIIRHoldV2uC8pjSvZOde05Eun8scRzC8xlAUC9h/sd2I3V63Dw5HnS+M3BAibeOujQG9JpJLocPGYksyw9exZTc7e8b8KMmSQiYYVBWhN+1OEM5ZJxJmi2RAqz0Si/0OTeDuSJWFbVei5ScCe+9z1CBM+r4vXyMPTtioiEzKJKVWYlfbhoqfM6pv9a9dE6dnE4CMnPFVAooO32aPCzAHNOZyYXzgLe0FKlyi1RvRB3trHoB72mJcE82AjEvbcudiPeHR85mKekmm7Mppu2BXkS/kBUN15sJGzqWmPJ99pmnfQCbZ6y5z9FEI9ref34445SBAPXxmlGw1GUGgQORIPnOyDNjsbDhGfiOTsGBOzdqoAAGGcmpdgTg2qSKWvytDShFJ4jyHg0NrLB6h80=
+  file: "$PWD/build/RelayPowermeter.ino.hex"
+  on:
+    repo: nazmang/RelayPowermeter
