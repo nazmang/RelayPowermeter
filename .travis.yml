@@ -17,10 +17,10 @@ install:
   - ln -s $PWD/DS3232RTC $HOME/Arduino/libraries/DS3232RTC
   - git clone https://github.com/mysensors/MySensorsArduinoExamples.git
   - ln -s $PWD/MySensorsArduinoExamples/libraries/LiquidCrystal $HOME/arduino_ide/LiquidCrystal
-  - arduino --install-library "MySensors,Bounce2,Time"
-  - arduino --install-boards "arduino:avr"
+  - $HOME/arduino_ide/arduino --install-library "MySensors,Bounce2,Time"
+  - $HOME/arduino_ide/arduino --install-boards "arduino:avr"
 script:
-  - arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/Arduino/libraries $PWD/*.ino
+  - $HOME/arduino_ide/arduino-builder -verbose  -hardware $HOME/arduino_ide/hardware -tools $HOME/arduino_ide/hardware/tools -tools $HOME/arduino_ide/tools-builder/ -fqbn arduino:avr:uno -libraries $HOME/arduino_ide $PWD/*.ino
 notifications:
   email:
     on_success: change
